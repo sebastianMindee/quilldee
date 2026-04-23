@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module type="EMPTY_MODULE" version="4">
+  <component name="NewModuleRootManager">
+    <content url="file://$MODULE_DIR$">
+      <sourceFolder url="file://$MODULE_DIR$/bindings/dotnet/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/bindings/java/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/bindings/nodejs/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/bindings/php/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/bindings/python/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/bindings/ruby/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/core" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/core/src" isTestSource="false" />
+      <excludeFolder url="file://$MODULE_DIR$/target" />
+    </content>
+    <orderEntry type="inheritedJdk" />
+    <orderEntry type="sourceFolder" forTests="false" />
+  </component>
+</module>
