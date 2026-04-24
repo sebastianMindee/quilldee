@@ -50,3 +50,34 @@ bindings/dotnet/**/*.pdb
 bindings/dotnet/**/*.nupkg
 bindings/dotnet/**/.vs/
 bindings/dotnet/**/*.user
+
+# IDEs
+.idea
+.history/
+*.code-workspace
+.claude
+*.iml
+*.iws
+out/
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+.settings/
+.project
+.classpath
+*.sublime-workspace
+*.sublime-project
+nppBackup/
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
