@@ -1060,6 +1060,7 @@ name = "quilldee"
 version = "0.1.0"
 dependencies = [
  "cargo-husky",
+ "serde",
 ]
 
 [[package]]
