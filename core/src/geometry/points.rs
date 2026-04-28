@@ -65,35 +65,6 @@ impl Points {
 }
 
 /// A macro to create a `Points` struct using a collection of `Point`s.
-///
-/// # Syntax
-/// ```
-/// points!(expr1, expr2, ..., exprN);
-/// ```
-///
-/// # Parameters
-/// - `$x:expr`: One or more expressions separated by commas. Each expression represents
-///   a value to be included in the `Points` struct.
-///
-/// # Returns
-/// A new `Points` struct initialized with the provided values.
-///
-/// # Example
-/// ```
-/// use your_crate::points;
-///
-/// let p = points!(1, 2, 3, 4);
-/// assert_eq!(p, Points(vec![1, 2, 3, 4]));
-/// ```
-///
-/// This will create a `Points` struct containing the values `[1, 2, 3, 4]`.
-///
-/// # Notes
-/// - Ensure that the `Points` struct is properly defined in your codebase before using this macro.
-/// - The macro expands into a `Points` struct initialized with a `Vec` containing the provided values.
-///
-/// # See Also
-/// - `Points` struct for more details about its implementation and usage.
 #[macro_export]
 macro_rules! points {
     ($($x:expr),*) => {
