@@ -22,70 +22,66 @@ pub enum PointInput<'a> {
 #[pymethods]
 impl PyPolygon {
     #[new]
-    fn new(points: Vec<PointInput>) -> PyResult<Self> {
+    fn new(points: Vec<PointInput>) -> Self {
         let core_polygon = points.into_iter().map(|input| match input {
-            PointInput::Point(p) => p.0.clone(),
+            PointInput::Point(p) => p.0,
             PointInput::Tuple((x, y)) => Point::new(x, y),
         });
 
-        Ok(Self(Polygon::new(core_polygon)))
+        Self(Polygon::new(core_polygon))
     }
-    /// Maps to Display through to_string_representation()
+    /// Maps to `Display` `through to_string_representation()`
     #[pyo3(name = "__str__")]
-    fn str_method(&self) -> PyResult<String> {
-        Ok(self.0.to_string_representation())
+    fn str_method(&self) -> String {
+        self.0.to_string_representation()
     }
 
-    /// Maps to Debug
+    /// Maps to `Debug`
     #[pyo3(name = "__repr__")]
-    fn repr_method(&self) -> PyResult<String> {
-        Ok(format!("{:?}", self.0))
+    fn repr_method(&self) -> String {
+        format!("{:?}", self.0)
     }
 
-    /// Maps to PartialEq
+    /// Maps to `PartialEq`
     #[pyo3(name = "__eq__")]
-    fn eq_method(&self, other: &PyPolygon) -> PyResult<bool> {
-        Ok(self.0 == other.0)
+    fn eq_method(&self, other: &Self) -> bool {
+        self.0 == other.0
     }
 
-    /// Maps to Index
+    /// Maps to `Index`
     #[pyo3(name = "__getitem__")]
     fn getitem_method(&self, key: &Bound<'_, PyAny>) -> PyResult<Py<PyAny>> {
         let py = key.py();
         if let Ok(index) = key.extract::<isize>() {
-            let len = self.0.0.len() as isize;
-            let actual_index = if index < 0 { index + len } else { index };
-            if actual_index < 0 {
-                return Err(pyo3::exceptions::PyIndexError::new_err(
-                    "polygon index out of range",
-                ));
-            }
-            let point = self
-                .0
-                .0
-                .get(actual_index as usize)
+            let len = self.0.0.len();
+            let actual_index: Option<usize> = if index < 0 {
+                len.checked_sub(index.unsigned_abs())
+            } else {
+                usize::try_from(index).ok()
+            };
+            let point = actual_index
+                .and_then(|i| self.0.0.get(i))
                 .copied()
                 .map(PyPoint)
-                .ok_or_else(|| pyo3::exceptions::PyIndexError::new_err("index out of range"));
-            return Ok(point?.into_py_any(py)?);
+                .ok_or_else(|| {
+                    pyo3::exceptions::PyIndexError::new_err("polygon index out of range")
+                });
+            return point?.into_py_any(py);
         }
 
         if let Ok(slice) = key.cast::<PySlice>() {
-            let indices = slice.indices(self.0.0.len() as isize)?;
+            let len = self.0.0.len().try_into().unwrap();
+            let indices = slice.indices(len)?;
 
-            let mut result = Vec::new();
-            let mut i = indices.start;
-            while if indices.step > 0 {
-                i < indices.stop
-            } else {
-                i > indices.stop
-            } {
-                if let Some(point) = self.0.0.get(i as usize).copied().map(PyPoint) {
-                    result.push(point);
-                }
-                i += indices.step;
-            }
-            return Ok(PyPolygon(Polygon::new(result.into_iter().map(|p| p.0))).into_py_any(py)?);
+            let points_iter =
+                std::iter::successors(Some(indices.start), |&i| Some(i + indices.step))
+                    .take(indices.slicelength)
+                    .map(|i| {
+                        #[allow(clippy::cast_sign_loss)]
+                        let idx = i as usize;
+                        self.0.0[idx]
+                    });
+            return Self(Polygon::new(points_iter)).into_py_any(py);
         }
 
         Err(PyTypeError::new_err("indices must be integers or slices"))
@@ -93,12 +89,12 @@ impl PyPolygon {
 
     // Length
     #[pyo3(name = "__len__")]
-    fn len_method(&self) -> PyResult<usize> {
-        Ok(self.0.0.len())
+    fn len_method(&self) -> usize {
+        self.0.0.len()
     }
 
     // Centroid method
-    fn centroid(&self) -> PyResult<Option<PyPoint>> {
-        Ok(self.0.centroid().map(PyPoint))
+    fn centroid(&self) -> Option<PyPoint> {
+        self.0.centroid().map(PyPoint)
     }
 }
