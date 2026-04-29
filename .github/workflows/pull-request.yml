@@ -14,3 +14,7 @@ jobs:
   unit-tests:
     uses: ./.github/workflows/_unit-tests.yml
     needs: pre-commit
+
+  python-binding-tests:
+    uses: ./.github/workflows/_python-binding-tests.yml
+    needs: pre-commit

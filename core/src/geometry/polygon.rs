@@ -1,13 +1,15 @@
 //! Collection of points.
+
 use crate::geometry::point::Point;
 use serde::{Deserialize, Serialize};
+use std::fmt;
 
 /// Collection of points.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-pub struct Points(pub Vec<Point>);
+pub struct Polygon(pub Vec<Point>);
 
-impl Points {
-    /// Create a new `Points` struct from an iterator of `Point`s.
+impl Polygon {
+    /// Create a new `Polygon` struct from `Point`s.
     pub fn new<I>(points: I) -> Self
     where
         I: IntoIterator<Item = Point>,
@@ -35,7 +37,7 @@ impl Points {
                     let tri_centroid_x = (p0.x + pi1.x + pi2.x) / 3.0;
                     let tri_centroid_y = (p0.y + pi1.y + pi2.y) / 3.0;
 
-                    // Clippy optimizations make this unbelievably ugly.
+                    // Clippy-suggested optimizations make this unbelievably ugly.
                     #[allow(clippy::suboptimal_flops, clippy::imprecise_flops)]
                     let weight = 0.5
                         * (p0.x * (pi1.y - pi2.y)
@@ -62,13 +64,41 @@ impl Points {
             }
         }
     }
+    /// The default string representation, explicitly exposed for bindings.
+    #[must_use]
+    pub fn to_string_representation(&self) -> String {
+        let points_str: Vec<String> = self
+            .0
+            .iter()
+            .map(|p| format!("({},{})", p.x, p.y))
+            .collect();
+
+        format!("({})", points_str.join(", "))
+    }
+}
+impl fmt::Display for Polygon {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "(")?;
+
+        let mut iter = self.0.iter();
+
+        if let Some(first) = iter.next() {
+            write!(f, "({},{})", first.x, first.y)?;
+
+            for p in iter {
+                write!(f, ", ({},{})", p.x, p.y)?;
+            }
+        }
+
+        write!(f, ")")
+    }
 }
 
-/// A macro to create a `Points` struct using a collection of `Point`s.
+/// A macro to create a `Polygon` struct using a collection of `Point`s.
 #[macro_export]
-macro_rules! points {
+macro_rules! polygon {
     ($($x:expr),*) => {
-        Points(vec![$($x),*])
+        Polygon(vec![$($x),*])
     };
 }
 
@@ -78,48 +108,51 @@ mod tests {
 
     #[test]
     fn test_centroid_triangle() {
-        let points = points!(
+        let polygon = polygon!(
             Point::new(0.0, 0.0),
             Point::new(1.0, 0.0),
             Point::new(0.0, 1.0)
         );
-        assert_eq!(points.centroid().unwrap(), Point::new(1.0 / 3.0, 1.0 / 3.0));
+        assert_eq!(
+            polygon.centroid().unwrap(),
+            Point::new(1.0 / 3.0, 1.0 / 3.0)
+        );
     }
 
     #[test]
     fn test_centroid_square() {
-        let points = points!(
+        let polygon = polygon!(
             Point::new(0.0, 0.0),
             Point::new(1.0, 0.0),
             Point::new(1.0, 1.0),
             Point::new(0.0, 1.0)
         );
-        assert_eq!(points.centroid().unwrap(), Point::new(0.5, 0.5));
+        assert_eq!(polygon.centroid().unwrap(), Point::new(0.5, 0.5));
     }
 
     #[test]
     fn test_centroid_empty() {
-        let points = points!();
-        assert_eq!(points.centroid(), None);
+        let polygon = polygon!();
+        assert_eq!(polygon.centroid(), None);
     }
 
     #[test]
     fn test_centroid_single_point() {
         let single_point = Point::new(3.6, 6.2);
-        let points = points!(single_point);
-        assert_eq!(points.centroid().unwrap(), single_point);
+        let polygon = polygon!(single_point);
+        assert_eq!(polygon.centroid().unwrap(), single_point);
     }
 
     #[test]
     fn test_centroid_degenerate() {
         let single_point = Point::new(3.6, 6.2);
-        let points = points!(single_point, single_point);
-        assert_eq!(points.centroid().unwrap(), single_point);
+        let polygon = polygon!(single_point, single_point);
+        assert_eq!(polygon.centroid().unwrap(), single_point);
     }
 
     #[test]
     fn test_centroid_complex_polygon() {
-        let points = points!(
+        let polygon = polygon!(
             Point::new(1.2, 1.4),
             Point::new(8.4, 2.1),
             Point::new(5.3, 4.8),
@@ -128,14 +161,14 @@ mod tests {
             Point::new(1.2, 1.4)
         );
         assert_eq!(
-            points.centroid().unwrap(),
+            polygon.centroid().unwrap(),
             Point::new(455_557.0 / 101_370.0, 494_583.0 / 101_370.0)
         );
     }
 
     #[test]
     fn test_centroid_concave_l_shape() {
-        let points = points!(
+        let polygon = polygon!(
             Point::new(0.0, 0.0),
             Point::new(3.0, 0.0),
             Point::new(3.0, 1.0),
@@ -143,40 +176,40 @@ mod tests {
             Point::new(1.0, 3.0),
             Point::new(0.0, 3.0)
         );
-        assert_eq!(points.centroid().unwrap(), Point::new(1.1, 1.1));
+        assert_eq!(polygon.centroid().unwrap(), Point::new(1.1, 1.1));
     }
 
     #[test]
     fn test_centroid_line_segment() {
-        let points = points!(Point::new(0.0, 0.0), Point::new(4.0, 2.0));
-        assert_eq!(points.centroid().unwrap(), Point::new(2.0, 1.0));
+        let polygon = polygon!(Point::new(0.0, 0.0), Point::new(4.0, 2.0));
+        assert_eq!(polygon.centroid().unwrap(), Point::new(2.0, 1.0));
     }
 
     #[test]
     fn test_centroid_collinear_fallback() {
-        let points = points!(
+        let polygon = polygon!(
             Point::new(0.0, 0.0),
             Point::new(2.0, 2.0),
             Point::new(4.0, 4.0)
         );
-        assert_eq!(points.centroid().unwrap(), Point::new(2.0, 2.0));
+        assert_eq!(polygon.centroid().unwrap(), Point::new(2.0, 2.0));
     }
 
     #[test]
     fn test_centroid_negative_coordinates() {
-        let points = points!(
+        let polygon = polygon!(
             Point::new(-2.0, -2.0),
             Point::new(-0.0, -2.0),
             Point::new(-0.0, -0.0),
             Point::new(-2.0, -0.0)
         );
-        assert_eq!(points.centroid().unwrap(), Point::new(-1.0, -1.0));
+        assert_eq!(polygon.centroid().unwrap(), Point::new(-1.0, -1.0));
     }
 
     #[test]
-    fn test_points_new_from_iterator() {
+    fn test_polygon_new_from_iterator() {
         let vec_pts = vec![Point::new(1.0, 2.0), Point::new(3.0, 4.0)];
-        let points = Points::new(vec_pts);
-        assert_eq!(points.0.len(), 2);
+        let polygon = Polygon::new(vec_pts);
+        assert_eq!(polygon.0.len(), 2);
     }
 }

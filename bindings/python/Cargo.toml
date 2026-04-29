@@ -15,10 +15,7 @@ crate-type = ["cdylib"]
 
 [dependencies]
 quilldee = { path = "../../core", features = ["full"] }
-uniffi = { version = "0.31.1" }
-
-[build-dependencies]
-uniffi = { version = "0.31.1", features = ["build"] }
+pyo3 = { version = "0.28", features = ["extension-module", "abi3-py39"] }
 
 [lints]
 workspace = true
