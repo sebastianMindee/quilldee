@@ -17,4 +17,4 @@ jobs:
 
   python-binding-tests:
     uses: ./.github/workflows/_python-binding-tests.yml
-    needs: pre-commit
+    needs: unit-tests
