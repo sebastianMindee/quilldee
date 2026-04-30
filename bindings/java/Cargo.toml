@@ -15,10 +15,8 @@ crate-type = ["cdylib"]
 
 [dependencies]
 quilldee = { path = "../../core", features = ["full"] }
-uniffi = { version = "0.31.1" }
-
-[build-dependencies]
-uniffi = { version = "0.31.1", features = ["build"] }
+jni = "0.22.4"
 
 [lints]
 workspace = true
+

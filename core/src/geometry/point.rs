@@ -21,6 +21,12 @@ impl Point {
     pub const fn new(x: f64, y: f64) -> Self {
         Self { x, y }
     }
+
+    /// The default string representation, explicitly exposed for bindings.
+    #[must_use]
+    pub fn to_string_representation(&self) -> String {
+        format!("({}, {})", self.x, self.y)
+    }
 }
 
 /// Implement common mathematical operations for `Point`.
@@ -100,5 +106,59 @@ impl From<(f64, f64)> for Point {
 impl From<Point> for (f64, f64) {
     fn from(point: Point) -> Self {
         (point.x, point.y)
+    }
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_new() {
+        let p = Point::new(1.5, 2.5);
+        assert!((p.x - 1.5).abs() < f64::EPSILON);
+        assert!((p.y - 2.5).abs() < f64::EPSILON);
+    }
+
+    #[test]
+    fn test_arithmetic() {
+        let p1 = Point::new(10.0, 20.0);
+        let p2 = Point::new(5.0, 5.0);
+        assert_eq!(p1 + p2, Point::new(15.0, 25.0));
+        assert_eq!(p1 - p2, Point::new(5.0, 15.0));
+        assert_eq!(p1 * 2.0, Point::new(20.0, 40.0));
+        assert_eq!(p1 / 2.0, Point::new(5.0, 10.0));
+    }
+
+    #[test]
+    fn test_formatting() {
+        let p = Point::new(1.0, 2.0);
+        let expected = "(1, 2)";
+        assert_eq!(format!("{p}"), expected);
+        assert_eq!(p.to_string_representation(), expected);
+    }
+
+    #[test]
+    fn test_indexing() {
+        let p = Point::new(1.2, 3.4);
+        assert!((p[0] - 1.2).abs() < f64::EPSILON);
+        assert!((p[1] - 3.4).abs() < f64::EPSILON);
+    }
+
+    #[test]
+    #[should_panic(expected = "Index out of bounds")]
+    fn test_indexing_panic() {
+        let p = Point::new(1.2, 3.4);
+        let _ = p[2];
+    }
+
+    #[test]
+    fn test_conversions() {
+        let tuple = (10.0, 20.0);
+        let p = Point::from(tuple);
+        assert_eq!(p, Point::new(10.0, 20.0));
+
+        let p2 = Point::new(5.0, 6.0);
+        let tuple2: (f64, f64) = p2.into();
+        assert_eq!(tuple2, (5.0, 6.0));
     }
 }

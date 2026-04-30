@@ -18,3 +18,7 @@ jobs:
   python-binding-tests:
     uses: ./.github/workflows/_python-binding-tests.yml
     needs: unit-tests
+
+  java-binding-tests:
+    uses: ./.github/workflows/_java-binding-tests.yml
+    needs: unit-tests

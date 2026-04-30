@@ -94,6 +94,14 @@ impl fmt::Display for Polygon {
     }
 }
 
+/// Implement conversion from tuple to `Point`.
+impl From<Vec<(f64, f64)>> for Polygon {
+    fn from(coords: Vec<(f64, f64)>) -> Self {
+        let points = coords.into_iter().map(|(x, y)| Point::new(x, y)).collect();
+        Self(points)
+    }
+}
+
 /// A macro to create a `Polygon` struct using a collection of `Point`s.
 #[macro_export]
 macro_rules! polygon {
@@ -211,5 +219,16 @@ mod tests {
         let vec_pts = vec![Point::new(1.0, 2.0), Point::new(3.0, 4.0)];
         let polygon = Polygon::new(vec_pts);
         assert_eq!(polygon.0.len(), 2);
+    }
+    #[test]
+    fn test_from_vec_coords() {
+        let coords = vec![(0.0, 0.0), (10.0, 0.0), (10.0, 10.0), (0.0, 10.0)];
+        let polygon = Polygon::from(coords);
+
+        assert_eq!(polygon.0.len(), 4);
+        assert_eq!(polygon.0[0], Point::new(0.0, 0.0));
+        assert_eq!(polygon.0[1], Point::new(10.0, 0.0));
+        assert_eq!(polygon.0[2], Point::new(10.0, 10.0));
+        assert_eq!(polygon.0[3], Point::new(0.0, 10.0));
     }
 }
