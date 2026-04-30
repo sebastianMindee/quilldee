@@ -3,6 +3,9 @@
 **/*.rs.bk
 .env
 
+# Bindings
+bindings/**/*.so
+
 # Node.js (bindings/nodejs)
 bindings/nodejs/**/node_modules/
 bindings/nodejs/**/*.node
@@ -16,7 +19,6 @@ bindings/nodejs/**/pnpm-lock.yaml
 # PHP (bindings/php)
 bindings/php/**/vendor/
 bindings/php/**/composer.lock
-bindings/php/**/*.so
 
 # Python (bindings/python)
 bindings/python/**/__pycache__/
@@ -27,6 +29,7 @@ bindings/python/**/build/
 bindings/python/**/.venv/
 bindings/python/**/venv/
 bindings/python/**/*.pyi
+bindings/python/**/*.pyd
 
 # Ruby (bindings/ruby)
 bindings/ruby/**/*.gem
@@ -52,6 +55,7 @@ bindings/dotnet/**/.vs/
 bindings/dotnet/**/*.user
 
 # IDEs
+.codex
 .idea
 .history/
 *.code-workspace
