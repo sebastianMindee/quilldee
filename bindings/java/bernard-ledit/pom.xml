@@ -79,7 +79,7 @@
                             <executable>bash</executable>
                             <arguments>
                                 <argument>-c</argument>
-                                <argument>source $HOME/.cargo/env || true ; cargo build</argument>
+                                <argument>source $HOME/.cargo/env || true ; cargo build -p bernard-ledit-java</argument>
                             </arguments>
                         </configuration>
                     </execution>
